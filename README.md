@@ -8,7 +8,7 @@ This is an independent candidate exercise, not ChatDKU production code. Do not a
 
 `PDF page → overlapping passage with (document, page, chunk) → BM25 keyword tool + sentence-transformer vector tool → reciprocal-rank fusion → DSPy planner and synthesizer → answer with retrieved-page citations`
 
-The retrieval tools are callable separately via `search --mode keyword|vector|hybrid`. DSPy `Plan` proposes a query, then `Synthesize` receives only selected passages. Citation strings are rendered from passage metadata, never fabricated by the LM. A citation identifies evidence made available to the LM; it does **not** guarantee every answer claim is supported, so manual support evaluation remains necessary.
+The retrieval tools are callable separately via `search --mode keyword|vector|hybrid`. DSPy `Plan` proposes a query, then `Synthesize` receives selected passages and returns the evidence IDs it used. The program validates those IDs and renders filenames/pages from passage metadata, never from model-written citations. This still does **not** guarantee every answer claim is supported, so manual support evaluation remains necessary.
 
 ## Setup
 
@@ -47,7 +47,7 @@ python -m pytest -q
 
 - CJK overlapping bigrams provide only a basic keyword baseline; terms and English/CJK mixed queries can miss relevant passages.
 - A predominantly English embedding such as `bge-small-en-v1.5` may underperform on Chinese. Compare a multilingual embedding.
-- Retrieved hits may be irrelevant. The current answer stage may still make an unsupported claim, and lists all retrieved pages as candidate sources. Claim-level citation selection and verification are planned improvements.
+- Retrieved hits may be irrelevant. The answer stage may still make an unsupported claim or select a weak source. Claim-level support verification is a planned improvement.
 - The simple corpus is held in memory and re-embedded at each run; no OCR, persistent index, reranking, telemetry, access controls, or conversation state.
 - A planner failure falls back to the raw question; a synthesis or model-server failure is surfaced rather than masked.
 
